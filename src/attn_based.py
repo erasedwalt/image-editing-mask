@@ -162,6 +162,7 @@ def get_map_attn_based(
         num_steps: int = 4,
         seed: int = 8128,
         sample_mode: tp.Literal["sample", "argmax"] = "sample",
+        out_size: tuple[int, int] | None = None,
 ) -> torch.Tensor:
 
     assert hasattr(pipe.unet, "attn_patched"), "The pipeline should be patched firstly using `patcher.patch_attention(pipe.unet, ...)`."
@@ -186,7 +187,7 @@ def get_map_attn_based(
     fm = fm.reshape(16, 16)
     fm = torch.nn.functional.interpolate(
         input=rescale(fm)[None, None],
-        size=image.size,
+        size=image.size if out_size is None else out_size,
         mode="bilinear",
     ).squeeze()
 

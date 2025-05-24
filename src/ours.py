@@ -166,6 +166,7 @@ def get_map_ours(
         num_steps: int = 4,
         seed: int = 8128,
         sample_mode: tp.Literal["sample", "argmax"] = "sample",
+        out_size: tuple[int, int] | None = None,
 ) -> torch.Tensor:
 
     patcher.clear()
@@ -196,7 +197,7 @@ def get_map_ours(
     fm = maps.reshape(16, 16)
     fm = torch.nn.functional.interpolate(
         input=rescale(fm)[None, None],
-        size=image.size,
+        size=image.size if out_size is None else out_size,
         mode="bilinear",
     ).squeeze()
 
