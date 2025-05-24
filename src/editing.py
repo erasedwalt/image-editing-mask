@@ -17,7 +17,7 @@ MAPPING = {
 
 
 class EditingPipeline:
-    def __init__(self, cache_dir: str):
+    def __init__(self, cache_dir: str | None):
         self.pipeline, self.patcher = load_and_patch_pipe(cache_dir)
 
     def edit(
@@ -49,7 +49,7 @@ class EditingPipeline:
         
 
 
-def load_and_patch_pipe(cache_dir: str) -> tuple[tp.Any, NoiseAttentionPatcher]:
+def load_and_patch_pipe(cache_dir: str | None) -> tuple[tp.Any, NoiseAttentionPatcher]:
     pipeline = load_pipe(fp16=True, cache_dir=cache_dir)
 
     patcher = NoiseAttentionPatcher()
