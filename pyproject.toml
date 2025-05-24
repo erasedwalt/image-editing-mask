@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-git-versioning>=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools-git-versioning]
+enabled = true
+tag_formatter = "(v)?(?P<tag>(\\d+.)*\\d+)(-.+)?"
+
+[tool.setuptools]
+packages = [
+    "image_editing_mask",
+    "image_editing_mask.turbo_edit"
+]
+
+[tool.setuptools.package-dir]
+"image_editing_mask" = "src"
+"image_editing_mask.turbo_edit" = "src/turbo-edit"
+
+[project]
+name = "image_editing_mask"
+authors = [
+    {name = "Maksim Semenov", email = "erasedwalt@gmail.com"}
+]
+description = "Image Editing Mask"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Private :: Do Not Upload",
+]
+requires-python = ">= 3.10"
+dynamic = ["version"]
+dependencies = [
+    # TODO
+]
