@@ -1,6 +1,7 @@
 import argparse
 import os
 from functools import partial
+from pathlib import Path
 
 import jsonc as json
 import torch
@@ -46,9 +47,9 @@ def encode_image(image, pipe, generator):
 
 def set_pipeline(pipeline: StableDiffusionXLImg2ImgPipeline, num_timesteps, generator):
     if num_timesteps == 3:
-        config_from_file = "run_configs/noise_shift_steps_3.yaml"
+        config_from_file = Path(__file__).parent / "run_configs/noise_shift_steps_3.yaml"
     elif num_timesteps == 4:
-        config_from_file = "run_configs/noise_shift_steps_4.yaml"
+        config_from_file = Path(__file__).parent / "run_configs/noise_shift_steps_4.yaml"
     else:
         raise ValueError("num_timesteps must be 3 or 4")
 
