@@ -172,7 +172,7 @@ def get_map_attn_based(
     fm = _get_maps(
         pipe=pipe,
         patcher=patcher,
-        image=image,
+        image=image.resize((512, 512)),
         prompt=prompt,
         changed_slices=changed_slices,
         batch_size=1,

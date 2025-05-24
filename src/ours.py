@@ -178,7 +178,7 @@ def get_map_ours(
     maps = _get_maps(
         pipe=pipe,
         patcher=patcher,
-        image=image,
+        image=image.resize((512, 512)),
         prompt=prompt,
         changed_slices=changed_slices,
         token_ids_to_shift=token_ids_to_shift,

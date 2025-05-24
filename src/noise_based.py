@@ -35,7 +35,7 @@ def get_map_noise_based(
         prompt_orig=source_prompt,
         prompt_edit=target_prompt,
         num_repeat=num_repeat,
-        image=image,
+        image=image.resize((512, 512)),
         strength=strength,
         num_inference_steps=num_steps,
         sample_mode=sample_mode,
