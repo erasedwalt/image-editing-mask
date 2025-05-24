@@ -417,7 +417,7 @@ class NoiseAttentionPatcher(BasePatcher):
 
             # 6. Prepare latent variables
             if latents is None:
-                latents = pipeline.prepare_latents(
+                latents = pipeline.prepare_latents_modified(
                     image,
                     latent_timestep,
                     batch_size,
@@ -539,6 +539,6 @@ class NoiseAttentionPatcher(BasePatcher):
 
             patcher_self["noise"] = [noise_pred]
 
-        pipeline.__call__ = new_pipe_call_img2img
-        pipeline.prepare_latents = new_prepare_latents
+        pipeline.step_and_record = new_pipe_call_img2img
+        pipeline.prepare_latents_modified = new_prepare_latents
         setattr(pipeline, "call_patched", True)

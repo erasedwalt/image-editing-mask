@@ -24,6 +24,7 @@ def get_map_noise_based(
         num_steps: int = 4,
         seed: int = 8128,
         sample_mode: tp.Literal["sample", "argmax"] = "sample",
+        out_size: tuple[int, int] | None = None,
 ) -> torch.Tensor:
 
     assert hasattr(pipe, "call_patched"), "The pipeline should be patched firstly using `patcher.patch_call(pipe)`."
@@ -31,7 +32,7 @@ def get_map_noise_based(
 
     generator = torch.Generator().manual_seed(seed)
 
-    pipe.__call__(
+    pipe.step_and_record(
         prompt_orig=source_prompt,
         prompt_edit=target_prompt,
         num_repeat=num_repeat,
@@ -47,7 +48,7 @@ def get_map_noise_based(
 
     fm = torch.nn.functional.interpolate(
         input=fm[None, None],
-        size=image.size,
+        size=image.size if out_size is None else out_size,
         mode="bilinear",
     ).squeeze()
 
