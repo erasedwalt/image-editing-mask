@@ -95,7 +95,7 @@ def set_pipeline(pipeline: StableDiffusionXLImg2ImgPipeline, num_timesteps, gene
 
 @torch.inference_mode()
 def run(
-    image_path,
+    image,
     src_prompt,
     tgt_prompt,
     seed,
@@ -109,7 +109,7 @@ def run(
 
     timesteps, config = set_pipeline(pipeline, num_timesteps, generator)
 
-    x_0_image = Image.open(image_path).convert("RGB").resize((512, 512), RESIZE_TYPE)
+    x_0_image = image.convert("RGB").resize((512, 512), RESIZE_TYPE)
     x_0 = encode_image(x_0_image, pipeline, generator)
     x_ts = create_xts(
         config.noise_shift_delta,
