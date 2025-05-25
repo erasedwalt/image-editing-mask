@@ -30,5 +30,17 @@ classifiers = [
 requires-python = ">= 3.10"
 dynamic = ["version"]
 dependencies = [
-    # TODO
+    "numpy==2.2.3",
+    "pandas==2.2.3",
+    "torch==2.6.0",
+    "torchvision==0.21.0",
+    "accelerate==1.4.0",
+    "diffusers==0.33.0",
+    "transformers==4.49.0",
+    "torchmetrics==1.6.2",
+    "PyYAML==6.0.2",
+    "tqdm==4.67.1",
+    "Pillow==11.1.0",
+    "ml_collections==1.0.0",
+    "json-with-comments==1.2.10",
 ]
