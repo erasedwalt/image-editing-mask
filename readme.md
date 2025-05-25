@@ -1,32 +1,37 @@
 # Image Editing Mask
 
-This repository contains implementations of different techniques to obtain a binary mask of the object that supposted to be edited using only a target diffusion model ([SDXL-Turbo](https://huggingface.co/stabilityai/sdxl-turbo) in our case).
+This repository implements various techniques for generating binary masks to identify objects targeted for editing, using only a target diffusion model ([SDXL-Turbo](https://huggingface.co/stabilityai/sdxl-turbo) in our case).
 
-We observe 3 types of such techniques (the only existing ones for our knownledge):
+We examine three types of techniques (the only known ones to our knowledge):
 - Noise-based technique (see for example [Diffedit](https://arxiv.org/abs/2210.11427))
 - Attention-based technique (see for example [Prompt-to-prompt](https://arxiv.org/abs/2208.01626))
-- Our proposed tecnhique
+- Our proposed technique
 
 ## Usage
 
 ### Installation
 
-One should use this code as a python module. So please firstly install it via
+Use this code as a Python module by installing it via:
 ```bash
 pip install .
 ```
 
-After this you can import the module with name `image_editing_mask`.
+After installation, import the module using `image_editing_mask`.
 
-It comes with [Turbo-Edit](https://arxiv.org/abs/2408.00735)'s original implementation with a small modification which includes a feature of using a binary mask of the object to be edited. Please also make sure to check out the original repository: <https://github.com/GiilDe/turbo-edit>.
+This implementation includes a modified version of [Turbo-Edit](https://arxiv.org/abs/2408.00735) that supports binary masks for object editing. For reference, please see the original repository: https://github.com/GiilDe/turbo-edit.
 
 ### Image Editing
 
-To edit an arbitrary image one can use the `EditingPipeline` class which uses Turbo-Edit along with one of the mask generation techniques under the hood. There are 3 options for mask generation: `ours`, `attn_based` and `noise_based`. The first two methods share the same binarization technique and their meaningful binarization threshold lies in the range from 0 to 1. The `noise_based` method's meaningful binarization threshold lies in the range from 0 to ~10 (as we use the same binarization method as in Diffedit, check the [link](https://github.com/huggingface/diffusers/blob/v0.33.1/src/diffusers/pipelines/stable_diffusion_diffedit/pipeline_stable_diffusion_diffedit.py#L1046)). Varying `num_repeat`, `strength`, `seed` and `sample_mode` also could be helpful.
+The EditingPipeline class enables image editing by combining Turbo-Edit with one of three mask generation techniques:
+1. `ours`
+1. `attn_based`
+1. `noise_based`
+
+The first two methods share a binarization threshold range of 0 to 1, while the noise_based method uses a range of 0 to ~10 (consistent with Diffedit's implementation [here](https://github.com/huggingface/diffusers/blob/v0.33.1/src/diffusers/pipelines/stable_diffusion_diffedit/pipeline_stable_diffusion_diffedit.py#L1046)). Adjusting `num_repeat`, `strength`, `seed`, and `sample_mode` may improve results.
 
 ```python
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1" # this is needed to set device, otherwise it always uses 0'th (turbo-edit's limitation)
+os.environ["CUDA_VISIBLE_DEVICES"] = "1" # Required to set device (turbo-edit limitation)
 
 from PIL import Image
 from image_editing_mask.editing import EditingPipeline
@@ -40,16 +45,17 @@ result = pipeline.edit(
     image,
     source_prompt = "a face",
     target_prompt = "a face with glasses",
-    mask_obtaining = "ours", # or "attn_based" and "noise_based"
+    mask_obtaining = "ours", # Alternatives: "attn_based", "noise_based"
     binarization_threshold = 0.5,
-    num_repeat = 1, # the more the value, the more stable the resulting object's mask
-    strength = 0.5, # in [0.25, 0.5, 0.75]
-    sample_mode = "argmax", # or "sample"
+    num_repeat = 1, # Higher values produce more stable masks
+    strength = 0.5, # Options: 0.25, 0.5, 0.75
+    sample_mode = "argmax", # Alternative: "sample"
     seed = 8128,
 )
 ```
 
-To obtain just a mask of an object to be edited one can use
+To generate only an object mask:
+
 ```python
 import random
 
@@ -88,39 +94,48 @@ mask = func(
 
 ### Scripts for Pie-Bench
 
-There are scripts to inferece all 3 techniques on [Pie-Bench](https://arxiv.org/abs/2310.01506) dataset as on a segmentation task and as on an editing task (in this case along with Turbo-Edit). To run these scripts one can do
+Run these scripts to evaluate all three techniques on the [Pie-Bench](https://arxiv.org/abs/2310.01506) dataset for both segmentation and editing tasks (with Turbo-Edit):
 
 ```bash
-python scripts/parse_pie.py --ds-path /path/to/pie/bench # parse dataset
-python scripts/generate_masks_pie.py --cache-dir /hf/cache/dir --device cuda:1 # generate masks using all methods
-CUDA_VISIBLE_DEVICES=1 python scripts/edit_pie.py --mode one --cache-dir /hf/cache/dir # edit images using all masks
+# Parse dataset
+python scripts/parse_pie.py --ds-path /path/to/pie/bench
+
+# Generate masks using all methods
+python scripts/generate_masks_pie.py --cache-dir /hf/cache/dir --device cuda:1
+
+# Edit images using generated masks
+CUDA_VISIBLE_DEVICES=1 python scripts/edit_pie.py --mode one --cache-dir /hf/cache/dir
+
+# Calculate editing metrics
 python scripts/calculate_editing_metrics.py --device cuda:1
+
+# Calculate segmentation metrics
 python scripts/calculate_segmentation_metrics.py 
 ```
 
-The script that calculates image editing metrics uses the original implementation of them from the authors of the Pie-Bench dataset. Please make sure to check out their [paper](https://arxiv.org/abs/2310.01506) and [code](https://github.com/cure-lab/PnPInversion).
+The editing metrics script uses the original implementation from Pie-Bench authors. Reference their [paper](https://arxiv.org/abs/2310.01506) and [code](https://github.com/cure-lab/PnPInversion) for details.
 
 ## Binary Segmentation Quality
 
-Here is the Dice metric of different techniques on Pie-Bench dataset. The best metric across all different tasks is highlighted using bold font.
+The table below shows Dice metric scores for different techniques on the Pie-Bench dataset, with the best performance highlighted in bold.
 
-<img src="assets/segmentation_table.png" alt="drawing" width="300"/>
+<img src="assets/segmentation_table.png" alt="drawing" width="500"/>
 
-Some examples of segmentation of an object to be edited depending on given prompts:
+Example segmentation results for different prompts:
 
-<img src="assets/segmentation_examples.png" alt="drawing" width="500"/>
+<img src="assets/segmentation_examples.png" alt="drawing" width="800"/>
 
 
 ## Image Editing Quality
 
-Here is the graph of CLIP Similarity score (inside the target mask) and LPIPS score (outside the target mask) of different techniques to obtain a  mask PLUS Turbo-Edit. The more the graph is shifted left and upward, the better.
+The graph below compares CLIP Similarity (within target mask) and LPIPS scores (outside target mask) across techniques when combined with Turbo-Edit with varying binarization thresholds. Better performance appears in the upper-left quadrant.
 
 <img src="assets/editing_graph.png" alt="drawing" width="500"/>
 
-Some examples of editing from Pie-Bench.
+Example editing results from Pie-Bench:
 
-<img src="assets/editing_examples.png" alt="drawing" width="500"/>
+<img src="assets/editing_examples.png" alt="drawing" width="1000"/>
 
-The table showing comparison of our method + Turbo-Edit with other existing fast image editin methods. The other ones are [InfEdit](https://arxiv.org/abs/2312.04965) and [Turbo-Edit from Adobe](https://arxiv.org/abs/2408.08332) (NOT the one we used).
+Comparison table of our method (with Turbo-Edit) against other fast editing methods ([InfEdit](https://arxiv.org/abs/2312.04965) and [Adobe's Turbo-Edit](https://arxiv.org/abs/2408.08332)):
 
-<img src="assets/editing_table.png" alt="drawing" width="500"/>
+<img src="assets/editing_table.png" alt="drawing" width="1000"/>
